@@ -301,37 +301,154 @@ let arrayWithA2 = ref([]);
 //Вычисление выходов правил
 
 //ПАРСИНГ
-// Функция для чтения и обработки файла
-const processFile = async (event) => {
+// Обработчик загрузки файла
+const handleFileUpload = async (event) => {
   const file = event.target.files[0];
-  if (!file) return;
 
-  const text = await file.text(); // Чтение содержимого файла
-  const lines = text.split("\n"); // Разделение на строки
-
-  rules.value = lines
-    .filter((line) => line.trim().startsWith("Если")) // Фильтрация строк с правилами
-    .map((line) => {
-      const conditionPart = line.split("то")[0].replace("Если", "").trim();
-      const resultPart = line.split("то")[1].trim();
-
-      const conditions = conditionPart.split("и").map((condition) => {
-        const [type, value] = condition.split("–").map((part) => part.trim());
-        return { type, value };
-      });
-
-      const result = resultPart.split("–").map((part) => part.trim());
-      conditions.push({ type: result[0], value: result[1] });
-
-      return conditions;
-    });
+  if (file) {
+    const fileContent = await file.text(); // Чтение содержимого файла как текст
+    // console.log(fileContent);
+    let parsedRules = parseRules(fileContent); // Парсинг содержимого
+    rules.value = parsedRules; // Обновляем состояние правил
+  }
 };
+
+/**
+ * Основная функция парсинга текста в структуру правил.
+ * @param {string} text - Текстовый контент файла.
+ * @returns {Array} - Массив объектов правил.
+ */
+function parseRules(text) {
+  let lines = text.split("\n"); // Разделяем текст на строки
+  let rules = ref([]);
+  let definitionSets = ref([]);
+  let arrayWithA = ref([]);
+  // console.log(lines);
+  let rulesStartPosition,
+    definitionSetsStartPosition,
+    arrayWithAStartPosition = 0;
+  //Сначала нахожу номера строка с началом перечисления правил, множеств определения и нечеткими множествами
+  for (let i = 0; i < lines.length; i++) {
+    lines[i] = lines[i].trim(); // Убираем лишние пробелы в начале и конце строки
+
+    if (lines[i].startsWith("Правила:")) {
+      rulesStartPosition = i + 1;
+    }
+    if (lines[i].startsWith("Множества определения:")) {
+      definitionSetsStartPosition = i + 1;
+    }
+    if (lines[i].startsWith("Нечёткие множества:")) {
+      arrayWithAStartPosition = i + 1;
+    }
+  }
+  console.log("начало правил", rulesStartPosition);
+  console.log("начало множеств определений", definitionSetsStartPosition);
+  console.log("начало нечетких множеств", arrayWithAStartPosition);
+  // //удаляю строки с ключевыми словами ("Правила:", "Множества определения:", "Нечёткие множества:")
+  // lines.splice(rulesStartPosition - 1, 1);
+  // lines.splice(definitionSetsStartPosition, 1);
+  // lines.splice(arrayWithAStartPosition  + 1, 1);
+
+  for (let i = rulesStartPosition; i < definitionSetsStartPosition - 2; i++) {
+    lines[i] = lines[i].replace("Если", " ");
+    lines[i] = lines[i].replace(new RegExp(" и ", "gi"), " ");
+    lines[i] = lines[i].replace("то", " ");
+    lines[i] = lines[i].replace(/-/g, " ");
+    // console.log(lines[i]);
+    let words = lines[i].split(/\s+/).filter((word) => word.trim() !== "");
+    // console.log(words);
+    // Убедимся, что для индекса i существует массив в rules.value
+    if (!rules.value[i]) {
+      rules.value[i] = []; // Если нет массива, создаем его
+    }
+    for (let j = 0; j < words.length - 1; j += 2) {
+      rules.value[i].push({
+        type: words[j],
+        value: words[j + 1],
+      });
+    }
+    // console.log(rules.value);
+  }
+  console.log("Правила:");
+  console.log(rules.value);
+
+  for (
+    let i = definitionSetsStartPosition;
+    i < arrayWithAStartPosition - 2;
+    i++
+  ) {
+    lines[i] = lines[i].replace("=", " ");
+    lines[i] = lines[i].replace(new RegExp(",", "gi"), " ");
+    lines[i] = lines[i].replace("{", " ");
+    lines[i] = lines[i].replace("}", " ");
+    console.log(lines[i]);
+    let words = lines[i].split(/\s+/).filter((word) => word.trim() !== "");
+
+    console.log(words);
+
+    if (words.length > 0) {
+      // Проверяем, что массив не пустой
+      // Проверка, что type и set в words существует
+      if (words[0] && words[1]) {
+        definitionSets.value.push({ type: words[0], set: words.slice(1) });
+      } else {
+        console.warn(`Строка имеет неправильный формат: ${lines[i]}`);
+      }
+    } else {
+      console.warn(`Пустая строка: ${lines[i]}`);
+    }
+  }
+  console.log("Множества определения:");
+  console.log(definitionSets.value);
+  let words = [];
+  for (let i = arrayWithAStartPosition; i < lines.length; i++) {
+    lines[i] = lines[i].replace(":", " ");
+    lines[i] = lines[i].replace(new RegExp("\\+", "gi"), " ");
+    // console.log(lines[i]);
+    words.push(lines[i].split(/\s+/).filter((word) => word.trim() !== ""));
+
+    console.log(words);
+  }
+
+  let countOfValues = 0;
+  for (let i = 0; i < words.length; i++) {
+    if (words[i].length == 1) {
+      arrayWithA.value.push({
+        [words[i][0]]: {},
+      });
+      countOfValues++;
+    } else {
+      arrayWithA.value[countOfValues - 1].push({
+        [words[i][0]]: words[i].slice(1),
+      });
+    }
+  }
+  console.log("Нечёткие множества:");
+  console.log(arrayWithA.value);
+
+  return newRules;
+}
+
+/**
+ * Функция парсинга заключений, например: "то Температура- Высокая".
+ * @param {string} line - Строка заключения.
+ * @returns {Array} - Массив объектов заключения.
+ */
+function parseConclusion(line) {
+  const parts = line.split("–").map((p) => p.trim());
+  return [{ type: "Температура", value: parts[1] }];
+}
 </script>
 
 <template>
   <div>
-    <input type="file" @change="processFile" />
-    <pre>{{ rules }}</pre>
+    <!-- Выбор файла -->
+    <input type="file" @change="handleFileUpload" accept=".txt" />
+
+    <!-- Показать распарсенные правила -->
+    <div v-if="rules.length > 0">
+      <pre>{{ rules }}</pre>
+    </div>
   </div>
 </template>
 
