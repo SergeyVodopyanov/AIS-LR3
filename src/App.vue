@@ -381,10 +381,10 @@ function parseRules(text) {
     lines[i] = lines[i].replace(new RegExp(",", "gi"), " ");
     lines[i] = lines[i].replace("{", " ");
     lines[i] = lines[i].replace("}", " ");
-    console.log(lines[i]);
+    // console.log(lines[i]);
     let words = lines[i].split(/\s+/).filter((word) => word.trim() !== "");
 
-    console.log(words);
+    // console.log(words);
 
     if (words.length > 0) {
       // Проверяем, что массив не пустой
@@ -406,21 +406,20 @@ function parseRules(text) {
     lines[i] = lines[i].replace(new RegExp("\\+", "gi"), " ");
     // console.log(lines[i]);
     words.push(lines[i].split(/\s+/).filter((word) => word.trim() !== ""));
-
-    console.log(words);
   }
+  // console.log(words);
 
-  let countOfValues = 0;
+  let currentType = null;
   for (let i = 0; i < words.length; i++) {
     if (words[i].length == 1) {
+      currentType = words[i][0];
       arrayWithA.value.push({
-        [words[i][0]]: {},
+        [currentType]: {},
       });
-      countOfValues++;
     } else {
-      arrayWithA.value[countOfValues - 1].push({
-        [words[i][0]]: words[i].slice(1),
-      });
+      // Используем квадратные скобки для динамического добавления свойств
+      arrayWithA.value[arrayWithA.value.length - 1][currentType][words[i][0]] =
+        words[i].slice(1);
     }
   }
   console.log("Нечёткие множества:");
