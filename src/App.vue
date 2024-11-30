@@ -198,7 +198,7 @@ let rules = ref([]);
 //     { type: "Температура", value: "Средняя" },
 //   ],
 // ]);
-// rules.push(
+// rules.value.push(
 //   [
 //     { type: "Давление", value: "Большое" },
 //     { type: "Объем", value: "Большой" },
@@ -222,7 +222,7 @@ let definitionSets = ref([]);
 //   { type: "Объем", set: [500, 520, 540, 560] },
 //   { type: "Температура", set: [300, 350, 400] },
 // ]);
-// definitionSets.push(
+// definitionSets.value.push(
 //   { type: "Давление", set: [800, 830, 860, 900] },
 //   { type: "Объем", set: [500, 520, 540, 560] },
 //   { type: "Температура", set: [300, 350, 400] }
@@ -250,7 +250,7 @@ let arrayWithA = ref([]);
 //     },
 //   },
 // ]);
-// arrayWithA.push(
+// arrayWithA.value.push(
 //   {
 //     Давление: {
 //       Большое: [0.4, 0.6, 0.8, 1],
@@ -286,7 +286,7 @@ let arrayWithA2 = ref([]);
 //     },
 //   },
 // ]);
-// arrayWithA2.push(
+// arrayWithA2.value.push(
 //   {
 //     Давление: {
 //       Среднее: [0.5, 0.8, 0.9, 0.5],
@@ -403,7 +403,10 @@ function parseRules(text) {
       // Проверяем, что массив не пустой
       // Проверка, что type и set в words существует
       if (words[0] && words[1]) {
-        definitionSets.value.push({ type: words[0], set: words.slice(1) });
+        definitionSets.value.push({
+          type: words[0],
+          set: words.map(parseFloat).slice(1),
+        });
       } else {
         console.warn(`Строка имеет неправильный формат: ${lines[i]}`);
       }
@@ -432,7 +435,7 @@ function parseRules(text) {
     } else {
       // Используем квадратные скобки для динамического добавления свойств
       arrayWithA.value[arrayWithA.value.length - 1][currentType][words[i][0]] =
-        words[i].slice(1);
+        words[i].map(parseFloat).slice(1);
     }
   }
   console.log("Нечёткие множества:");
