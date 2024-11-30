@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, toRaw } from "vue";
 function fuzzyMamdaniImplication(A, B) {
   // нечёткая импликация Мамдани, получаем матрицу R
   let R = Array.from({ length: A.length }, () => Array(B.length).fill(null));
@@ -91,6 +91,20 @@ function fuzzyInferenceSystemsWithMultipleInputVariables(
   arrayWithA,
   arrayWithA2
 ) {
+  console.log(rules);
+  console.log(arrayWithA);
+  console.log(arrayWithA2);
+
+  rules = toRaw(rules);
+  arrayWithA = toRaw(arrayWithA);
+  arrayWithA2 = toRaw(arrayWithA2);
+
+  rules.shift();
+
+  console.log(rules);
+  console.log(arrayWithA);
+  console.log(arrayWithA2);
+
   let levels = [];
   let arrayWithB = [];
   // console.log(rules);
@@ -308,8 +322,7 @@ const handleFileUpload = async (event) => {
   if (file) {
     const fileContent = await file.text(); // Чтение содержимого файла как текст
     // console.log(fileContent);
-    let parsedRules = parseRules(fileContent); // Парсинг содержимого
-    rules.value = parsedRules; // Обновляем состояние правил
+    parseRules(fileContent); // Парсинг содержимого
   }
 };
 
@@ -320,9 +333,9 @@ const handleFileUpload = async (event) => {
  */
 function parseRules(text) {
   let lines = text.split("\n"); // Разделяем текст на строки
-  let rules = ref([]);
-  let definitionSets = ref([]);
-  let arrayWithA = ref([]);
+  // let rules = ref([]);
+  // let definitionSets = ref([]);
+  // let arrayWithA = ref([]);
   // console.log(lines);
   let rulesStartPosition,
     definitionSetsStartPosition,
@@ -424,18 +437,47 @@ function parseRules(text) {
   }
   console.log("Нечёткие множества:");
   console.log(arrayWithA.value);
-
-  return newRules;
 }
 
-/**
- * Функция парсинга заключений, например: "то Температура- Высокая".
- * @param {string} line - Строка заключения.
- * @returns {Array} - Массив объектов заключения.
- */
-function parseConclusion(line) {
-  const parts = line.split("–").map((p) => p.trim());
-  return [{ type: "Температура", value: parts[1] }];
+// Состояние для открытия/закрытия меню
+const isMenuOpen = ref(false);
+let newA2 = ref([null, null]); //['название величины', 'название нечёткого множества', коэф1, ..., коэфn]
+
+// Открыть меню
+const openMenu = () => {
+  isMenuOpen.value = true;
+};
+
+// Закрыть меню
+const closeMenu = () => {
+  isMenuOpen.value = false;
+};
+
+// Функция для добавления элемента
+const addItem = () => {
+  console.log("Добавлен новый элемент:", newA2.value);
+  // Здесь можно отправить новый элемент в хранилище данных или сервер
+  arrayWithA2.value.push({
+    [newA2.value[0]]: {
+      [newA2.value[1]]: newA2.value.slice(2),
+    },
+  });
+  console.log("Новые нечёткие множества:");
+  console.log(arrayWithA2.value);
+  newA2.value = [null, null]; // Очищаем поле ввода
+  closeMenu(); // Закрываем меню после добавления
+  console.log(rules.value);
+  console.log(arrayWithA.value);
+};
+
+function updateNewA2() {
+  let selectedSet = definitionSets.value.find(
+    (set) => set.type === newA2.value[0]
+  );
+  if (selectedSet) {
+    newA2.value[0] = selectedSet.type;
+    newA2.value.splice(2, newA2.value.length - 2, ...selectedSet.set.fill(0));
+  }
 }
 </script>
 
@@ -443,11 +485,69 @@ function parseConclusion(line) {
   <div>
     <!-- Выбор файла -->
     <input type="file" @change="handleFileUpload" accept=".txt" />
+    <!-- Кнопка для открытия меню -->
+    <button @click="openMenu">Добавить нечёткое множество</button>
+    <!-- Меню добавления элемента (модальное окно) -->
+    <div v-if="isMenuOpen" class="menu">
+      <div class="menu-content">
+        <h3>Добавление нечёткого множества</h3>
 
-    <!-- Показать распарсенные правила -->
-    <div v-if="rules.length > 0">
-      <pre>{{ rules }}</pre>
+        <!-- Форма добавления элемента -->
+        <form @submit.prevent="addItem">
+          <div>
+            <div>
+              <label for="definitionSets">Выберите величину:</label>
+              <select
+                id="definitionSets"
+                v-model="newA2[0]"
+                @change="updateNewA2"
+              >
+                <option
+                  v-for="definitionSet in definitionSets"
+                  :key="definitionSet.type"
+                  :value="definitionSet.type"
+                >
+                  {{ definitionSet.type }}
+                </option>
+              </select>
+              <div>
+                <label for="definitionSets"
+                  >Введите название нечёткого множества:</label
+                >
+                <input v-model="newA2[1]" type="text" />
+              </div>
+
+              <div v-for="(item, index) in newA2.length - 2" :key="index">
+                <input type="text" v-model="newA2[index + 2]" />
+              </div>
+            </div>
+
+            <p>Вы выбрали: {{ newA2 }}</p>
+          </div>
+          <!-- // [
+                //   { type: "Давление", set: [800, 830, 860, 900] },
+                //   { type: "Объем", set: [500, 520, 540, 560] },
+                //   { type: "Температура", set: [300, 350, 400] },
+                //   ]  -->
+
+          <button type="submit">Добавить</button>
+        </form>
+
+        <button @click="closeMenu">Закрыть</button>
+      </div>
     </div>
+    <button
+      @click="
+        fuzzyInferenceSystemsWithMultipleInputVariables(
+          rules,
+          arrayWithA,
+          arrayWithA2
+        )
+      "
+    >
+      Запустить алгоритм для нечётких систем логического вывода с несколькими
+      входными переменными
+    </button>
   </div>
 </template>
 
