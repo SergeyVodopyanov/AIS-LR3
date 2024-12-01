@@ -2,6 +2,9 @@
 import { ref, toRaw } from "vue";
 function fuzzyMamdaniImplication(A, B) {
   // нечёткая импликация Мамдани, получаем матрицу R
+  console.log(A);
+  console.log(B);
+
   let R = Array.from({ length: A.length }, () => Array(B.length).fill(null));
   for (let i = 0; i < A.length; i++) {
     for (let j = 0; j < B.length; j++) {
@@ -78,12 +81,12 @@ function aggR(arrayWithR) {
 // let B = aggB(arrayWitnB);
 
 //для нескольких правил (агрегация правил (с первоначальной агрегацией правил.))
-let arrayWithR = [];
-arrayWithR.push(fuzzyMamdaniImplication([0.4, 0.6, 0.8, 1], [0.5, 1, 0.5]));
-arrayWithR.push(fuzzyMamdaniImplication([1, 0.9, 0.6, 0.4], [1, 0.4, 0.1]));
-let A2 = [0.5, 0.8, 0.9, 0.5];
-let R = aggR(arrayWithR);
-let B2 = maxMinComposition(R, A2);
+// let arrayWithR = [];
+// arrayWithR.push(fuzzyMamdaniImplication([0.4, 0.6, 0.8, 1], [0.5, 1, 0.5]));
+// arrayWithR.push(fuzzyMamdaniImplication([1, 0.9, 0.6, 0.4], [1, 0.4, 0.1]));
+// let A2 = [0.5, 0.8, 0.9, 0.5];
+// let R = aggR(arrayWithR);
+// let B2 = maxMinComposition(R, A2);
 
 //нечёткие системы логического вывода с несколькими входными переменными
 function fuzzyInferenceSystemsWithMultipleInputVariables(
@@ -180,7 +183,7 @@ function getArrayByType(array, type) {
 }
 
 //правила
-let rules = ref([]);
+// let rules = ref([]);
 // let rules = ref([
 //   [
 //     { type: "Давление", value: "Большое" },
@@ -216,7 +219,7 @@ let rules = ref([]);
 //   ]
 // );
 //Множества определения
-let definitionSets = ref([]);
+// let definitionSets = ref([]);
 // let definitionSets = ref([
 //   { type: "Давление", set: [800, 830, 860, 900] },
 //   { type: "Объем", set: [500, 520, 540, 560] },
@@ -228,7 +231,7 @@ let definitionSets = ref([]);
 //   { type: "Температура", set: [300, 350, 400] }
 // );
 //начальные нечёткие множества
-let arrayWithA = ref([]);
+// let arrayWithA = ref([]);
 
 // let arrayWithA = ref([
 //   {
@@ -482,12 +485,178 @@ function updateNewA2() {
     newA2.value.splice(2, newA2.value.length - 2, ...selectedSet.set.fill(0));
   }
 }
+
+// let typeOfTask = ref();
+
+function handleClick() {
+  // rules = toRaw(rules);
+  // arrayWithA = toRaw(arrayWithA);
+  // arrayWithA2 = toRaw(arrayWithA2);
+
+  // rules.shift();
+
+  if (arrayWithA2.value.length > 1) {
+    fuzzyInferenceSystemsWithMultipleInputVariables(
+      rules,
+      arrayWithA,
+      arrayWithA2
+    );
+  } else {
+    oneOutputVariableWithInitialCalculationOfIndividualOutputs();
+  }
+}
+
+let rules = ref([
+  [
+    { type: "Давление", value: "Большое" },
+    { type: "Температура", value: "Средняя" },
+  ],
+  [
+    { type: "Давление", value: "Низкое" },
+    { type: "Температура", value: "Низкая" },
+  ],
+]);
+
+let definitionSets = ref([
+  { type: "Давление", set: [800, 830, 860, 900] },
+  { type: "Температура", set: [300, 350, 400] },
+]);
+
+let arrayWithA = ref([
+  {
+    Давление: {
+      Большое: [0.4, 0.6, 0.8, 1],
+      Низкое: [1, 0.9, 0.6, 0.4],
+    },
+  },
+
+  {
+    Температура: {
+      Средняя: [0.5, 1, 0.5],
+      Низкая: [1, 0.4, 0.1],
+    },
+  },
+]);
+
+// console.log(rules.value);
+// console.log(definitionSets.value);
+// console.log(arrayWithA.value);
+
+// let arrayWithR = [];
+// rules.value.forEach((ruleSet) => {
+//   let arrayForfuzzyMamdaniImplication = [];
+//   ruleSet.forEach((rule) => {
+//     // Ищем нужный массив по типу и значению
+//     const targetArray = arrayWithA.value.find((item) => item[rule.type]);
+//     if (targetArray && targetArray[rule.type]) {
+//       // console.log(targetArray[rule.type][rule.value]);
+//       arrayForfuzzyMamdaniImplication.push(targetArray[rule.type][rule.value]);
+//     } else {
+//       console.log(null); // Если не найдено, выводим null
+//     }
+//   });
+//   // console.log(arrayForfuzzyMamdaniImplication);
+//   arrayWithR.push(
+//     fuzzyMamdaniImplication(
+//       arrayForfuzzyMamdaniImplication[0],
+//       arrayForfuzzyMamdaniImplication[1]
+//     )
+//   );
+// });
+
+// // let arrayWithA2 = ref([]);
+// arrayWithA2.value.push([0.5, 0.8, 0.9, 0.5]);
+// let arrayWitnB = [];
+// for (let i = 0; i < arrayWithR.length; i++) {
+//   arrayWitnB.push(maxMinComposition(arrayWithR[i], arrayWithA2.value[0]));
+// }
+// let B = aggB(arrayWitnB);
+// console.log(B);
+
+// oneOutputVariableWithInitialCalculationOfIndividualOutputs();
+console.log(rules.value);
+console.log(definitionSets.value);
+console.log(arrayWithA.value);
+
+let arrayWithR = [];
+rules.value.forEach((ruleSet) => {
+  let arrayForfuzzyMamdaniImplication = [];
+  ruleSet.forEach((rule) => {
+    // Ищем нужный массив по типу и значению
+    const targetArray = arrayWithA.value.find((item) => item[rule.type]);
+    if (targetArray && targetArray[rule.type]) {
+      // console.log(targetArray[rule.type][rule.value]);
+      arrayForfuzzyMamdaniImplication.push(targetArray[rule.type][rule.value]);
+    } else {
+      console.log(null); // Если не найдено, выводим null
+    }
+  });
+  // console.log(arrayForfuzzyMamdaniImplication);
+  arrayWithR.push(
+    fuzzyMamdaniImplication(
+      arrayForfuzzyMamdaniImplication[0],
+      arrayForfuzzyMamdaniImplication[1]
+    )
+  );
+});
+
+// let arrayWithA2 = ref([]);
+arrayWithA2.value.push([0.5, 0.8, 0.9, 0.5]);
+let arrayWitnB = [];
+for (let i = 0; i < arrayWithR.length; i++) {
+  arrayWitnB.push(maxMinComposition(arrayWithR[i], arrayWithA2.value[0]));
+}
+let B = aggB(arrayWitnB);
+console.log(B);
+function oneOutputVariableWithInitialCalculationOfIndividualOutputs() {
+  // console.log(rules.value);
+  // console.log(definitionSets.value);
+  // console.log(arrayWithA.value);
+  // let arrayWithR = [];
+  // rules.value.forEach((ruleSet) => {
+  //   let arrayForfuzzyMamdaniImplication = [];
+  //   ruleSet.forEach((rule) => {
+  //     // Ищем нужный массив по типу и значению
+  //     const targetArray = arrayWithA.value.find((item) => item[rule.type]);
+  //     if (targetArray && targetArray[rule.type]) {
+  //       // console.log(targetArray[rule.type][rule.value]);
+  //       arrayForfuzzyMamdaniImplication.push(
+  //         targetArray[rule.type][rule.value]
+  //       );
+  //     } else {
+  //       console.log(null); // Если не найдено, выводим null
+  //     }
+  //   });
+  //   // console.log(arrayForfuzzyMamdaniImplication);
+  //   arrayWithR.push(
+  //     fuzzyMamdaniImplication(
+  //       arrayForfuzzyMamdaniImplication[0],
+  //       arrayForfuzzyMamdaniImplication[1]
+  //     )
+  //   );
+  // });
+  // // let arrayWithA2 = ref([]);
+  // arrayWithA2.value.push([0.5, 0.8, 0.9, 0.5]);
+  // let arrayWitnB = [];
+  // for (let i = 0; i < arrayWithR.length; i++) {
+  //   arrayWitnB.push(maxMinComposition(arrayWithR[i], arrayWithA2.value[0]));
+  // }
+  // let B = aggB(arrayWitnB);
+  // console.log(B);
+}
 </script>
 
 <template>
   <div>
     <!-- Выбор файла -->
     <input type="file" @change="handleFileUpload" accept=".txt" />
+    <!-- <label for="typeOfTask">Выберите тип задачи:</label>
+    <select id="typeOfTask" v-model="typeOfTask">
+      <option value="Одна входная переменная">Одна входная переменная</option>
+      <option value="Несколько входных переменных">
+        Несколько входных переменных
+      </option>
+    </select> -->
     <!-- Кнопка для открытия меню -->
     <button @click="openMenu">Добавить нечёткое множество</button>
     <!-- Меню добавления элемента (модальное окно) -->
@@ -539,15 +708,7 @@ function updateNewA2() {
         <button @click="closeMenu">Закрыть</button>
       </div>
     </div>
-    <button
-      @click="
-        fuzzyInferenceSystemsWithMultipleInputVariables(
-          rules,
-          arrayWithA,
-          arrayWithA2
-        )
-      "
-    >
+    <button @click="handleClick()">
       Запустить алгоритм для нечётких систем логического вывода с несколькими
       входными переменными
     </button>
