@@ -132,3 +132,24 @@
 //     },
 //   }
 // );
+
+
+
+
+//для нескольких правил (агрегация индивидуальных выходов (композиционное правило с первоначальным вычислением индивидуальных выходов))
+// let arrayWithR = [];
+// arrayWithR.push(fuzzyMamdaniImplication([0.4, 0.6, 0.8, 1], [0.5, 1, 0.5]));
+// arrayWithR.push(fuzzyMamdaniImplication([1, 0.9, 0.6, 0.4], [1, 0.4, 0.1]));
+// let A2 = [0.5, 0.8, 0.9, 0.5];
+// let arrayWitnB = [];
+// arrayWitnB.push(maxMinComposition(arrayWithR[0], A2));
+// arrayWitnB.push(maxMinComposition(arrayWithR[1], A2));
+// let B = aggB(arrayWitnB);
+
+//для нескольких правил (агрегация правил (композиционное правило с первоначальной агрегацией правил.))
+// let arrayWithR = [];
+// arrayWithR.push(fuzzyMamdaniImplication([0.4, 0.6, 0.8, 1], [0.5, 1, 0.5]));
+// arrayWithR.push(fuzzyMamdaniImplication([1, 0.9, 0.6, 0.4], [1, 0.4, 0.1]));
+// let A2 = [0.5, 0.8, 0.9, 0.5];
+// let R = aggR(arrayWithR);
+// let B2 = maxMinComposition(R, A2);

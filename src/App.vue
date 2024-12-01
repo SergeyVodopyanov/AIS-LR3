@@ -382,14 +382,7 @@ function updateNewA2() {
   }
 }
 
-// let typeOfTask = ref();
-
 function handleClick() {
-  // rules = toRaw(rules);
-  // arrayWithA = toRaw(arrayWithA);
-  // arrayWithA2 = toRaw(arrayWithA2);
-
-  // rules.shift();
   console.log("Работает функция handleClick");
 
   if (arrayWithA2.value.length > 1) {
@@ -402,7 +395,16 @@ function handleClick() {
     );
   } else {
     console.log("else в handleClick");
-    oneOutputVariableWithInitialCalculationOfIndividualOutputs();
+    if (selectedRule.value == "Правило 1") {
+      console.log(
+        "композиционное правило с первоначальным вычислением индивидуальных выходов"
+      );
+      oneOutputVariableWithInitialCalculationOfIndividualOutputs();
+    }
+    if (selectedRule.value == "Правило 2") {
+      console.log("композиционное правило с первоначальной агрегацией правил");
+      oneOutputVariableWithInitialAggregationOfRules();
+    }
   }
 }
 
@@ -438,67 +440,7 @@ function handleClick() {
 //   },
 // ]);
 
-// console.log(rules.value);
-// console.log(definitionSets.value);
-// console.log(arrayWithA.value);
-
-// let arrayWithR = [];
-// rules.value.forEach((ruleSet) => {
-//   let arrayForfuzzyMamdaniImplication = [];
-//   ruleSet.forEach((rule) => {
-//     // Ищем нужный массив по типу и значению
-//     const targetArray = arrayWithA.value.find((item) => item[rule.type]);
-//     if (targetArray && targetArray[rule.type]) {
-//       // console.log(targetArray[rule.type][rule.value]);
-//       arrayForfuzzyMamdaniImplication.push(targetArray[rule.type][rule.value]);
-//     } else {
-//       console.log(null); // Если не найдено, выводим null
-//     }
-//   });
-//   // console.log(arrayForfuzzyMamdaniImplication);
-//   arrayWithR.push(
-//     fuzzyMamdaniImplication(
-//       arrayForfuzzyMamdaniImplication[0],
-//       arrayForfuzzyMamdaniImplication[1]
-//     )
-//   );
-// });
-
-// // let arrayWithA2 = ref([]);
-// arrayWithA2.value.push([0.5, 0.8, 0.9, 0.5]);
-// let arrayWitnB = [];
-// for (let i = 0; i < arrayWithR.length; i++) {
-//   arrayWitnB.push(maxMinComposition(arrayWithR[i], arrayWithA2.value[0]));
-// }
-// let B = aggB(arrayWitnB);
-// console.log(B);
-
-// oneOutputVariableWithInitialCalculationOfIndividualOutputs();
-// console.log(rules.value);
-// console.log(definitionSets.value);
-// console.log(arrayWithA.value);
-
 let arrayWithR = [];
-// rules.value.forEach((ruleSet) => {
-//   let arrayForfuzzyMamdaniImplication = [];
-//   ruleSet.forEach((rule) => {
-//     // Ищем нужный массив по типу и значению
-//     const targetArray = arrayWithA.value.find((item) => item[rule.type]);
-//     if (targetArray && targetArray[rule.type]) {
-//       // console.log(targetArray[rule.type][rule.value]);
-//       arrayForfuzzyMamdaniImplication.push(targetArray[rule.type][rule.value]);
-//     } else {
-//       console.log(null); // Если не найдено, выводим null
-//     }
-//   });
-//   // console.log(arrayForfuzzyMamdaniImplication);
-//   arrayWithR.push(
-//     fuzzyMamdaniImplication(
-//       arrayForfuzzyMamdaniImplication[0],
-//       arrayForfuzzyMamdaniImplication[1]
-//     )
-//   );
-// });
 
 // let arrayWithA2 = ref([]);
 // arrayWithA2.value.push([0.5, 0.8, 0.9, 0.5]);
@@ -570,6 +512,40 @@ function oneOutputVariableWithInitialCalculationOfIndividualOutputs() {
   console.log(B);
 }
 
+function oneOutputVariableWithInitialAggregationOfRules() {
+  console.log(rules.value);
+  console.log(definitionSets.value);
+  console.log(arrayWithA.value);
+  let arrayWithR = [];
+  rules.value.forEach((ruleSet) => {
+    let arrayForfuzzyMamdaniImplication = [];
+    ruleSet.forEach((rule) => {
+      // Ищем нужный массив по типу и значению
+      const targetArray = arrayWithA.value.find((item) => item[rule.type]);
+      if (targetArray && targetArray[rule.type]) {
+        // console.log(targetArray[rule.type][rule.value]);
+        arrayForfuzzyMamdaniImplication.push(
+          targetArray[rule.type][rule.value]
+        );
+      } else {
+        console.log(null); // Если не найдено, выводим null
+      }
+    });
+    // console.log(arrayForfuzzyMamdaniImplication);
+    arrayWithR.push(
+      fuzzyMamdaniImplication(
+        arrayForfuzzyMamdaniImplication[0],
+        arrayForfuzzyMamdaniImplication[1]
+      )
+    );
+  });
+  let arrayWitnB = [];
+  arrayWithA2.value[0] = findArrayInObject(arrayWithA2.value[0]);
+  let R = aggR(arrayWithR);
+  let B2 = maxMinComposition(R, arrayWithA2.value[0]);
+  console.log(B2);
+}
+
 watch(
   rules,
   (newValue, oldValue) => {
@@ -577,6 +553,8 @@ watch(
   },
   { deep: true }
 );
+
+let selectedRule = ref("Правило 1");
 </script>
 
 <template>
@@ -592,6 +570,22 @@ watch(
     </select> -->
     <!-- Кнопка для открытия меню -->
     <button @click="openMenu">Добавить нечёткое множество</button>
+    <div>
+      <h1>Выберите правило:</h1>
+      <div>
+        <label>
+          <input type="radio" v-model="selectedRule" value="Правило 1" />
+          Композиционное правило с первоначальным вычислением индивидуальных
+          выходов
+        </label>
+      </div>
+      <div>
+        <label>
+          <input type="radio" v-model="selectedRule" value="Правило 2" />
+          Композиционное правило с первоначальной агрегацией правил
+        </label>
+      </div>
+    </div>
     <!-- Меню добавления элемента (модальное окно) -->
     <div v-if="isMenuOpen" class="menu">
       <div class="menu-content">
@@ -629,11 +623,6 @@ watch(
 
             <p>Вы выбрали: {{ newA2 }}</p>
           </div>
-          <!-- // [
-                //   { type: "Давление", set: [800, 830, 860, 900] },
-                //   { type: "Объем", set: [500, 520, 540, 560] },
-                //   { type: "Температура", set: [300, 350, 400] },
-                //   ]  -->
 
           <button type="submit">Добавить</button>
         </form>
@@ -641,10 +630,9 @@ watch(
         <button @click="closeMenu">Закрыть</button>
       </div>
     </div>
-    <button @click="handleClick()">
-      Запустить алгоритм для нечётких систем логического вывода с несколькими
-      входными переменными
-    </button>
+    <button @click="handleClick()">Запустить программу</button>
+    <!-- Запустить алгоритм для нечётких систем логического вывода с несколькими
+      входными переменными -->
   </div>
 </template>
 
