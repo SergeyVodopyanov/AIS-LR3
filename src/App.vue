@@ -1,5 +1,5 @@
 <script setup>
-import { ref, toRaw } from "vue";
+import { ref, toRaw, watch } from "vue";
 function fuzzyMamdaniImplication(A, B) {
   // нечёткая импликация Мамдани, получаем матрицу R
   console.log(A);
@@ -32,7 +32,7 @@ function maxMinComposition(R, A2) {
 
 function aggB(arrayWithB) {
   //агрегация индивидуальных выходов (композиционное правило с первоначальным вычислением индивидуальных выходов)
-  // console.log(arrayWithB);
+  console.log(arrayWithB);
   let B = [];
   for (let j = 0; j < arrayWithB[0].length; j++) {
     let max = arrayWithB[0][j];
@@ -98,9 +98,13 @@ function fuzzyInferenceSystemsWithMultipleInputVariables(
   console.log(arrayWithA);
   console.log(arrayWithA2);
 
-  rules = toRaw(rules);
-  arrayWithA = toRaw(arrayWithA);
-  arrayWithA2 = toRaw(arrayWithA2);
+  rules = rules.value;
+  arrayWithA = arrayWithA.value;
+  arrayWithA2 = arrayWithA2.value;
+
+  // rules = toRaw(rules);
+  // arrayWithA = toRaw(arrayWithA);
+  // arrayWithA2 = toRaw(arrayWithA2);
 
   rules.shift();
 
@@ -183,124 +187,16 @@ function getArrayByType(array, type) {
 }
 
 //правила
-// let rules = ref([]);
-// let rules = ref([
-//   [
-//     { type: "Давление", value: "Большое" },
-//     { type: "Объем", value: "Большой" },
-//     { type: "Температура", value: "Высокая" },
-//   ],
-//   [
-//     { type: "Давление", value: "Низкое" },
-//     { type: "Объем", value: "Большой" },
-//     { type: "Температура", value: "Средняя" },
-//   ],
-//   [
-//     { type: "Давление", value: "Большое" },
-//     { type: "Объем", value: "Маленький" },
-//     { type: "Температура", value: "Средняя" },
-//   ],
-// ]);
-// rules.value.push(
-//   [
-//     { type: "Давление", value: "Большое" },
-//     { type: "Объем", value: "Большой" },
-//     { type: "Температура", value: "Высокая" },
-//   ],
-//   [
-//     { type: "Давление", value: "Низкое" },
-//     { type: "Объем", value: "Большой" },
-//     { type: "Температура", value: "Средняя" },
-//   ],
-//   [
-//     { type: "Давление", value: "Большое" },
-//     { type: "Объем", value: "Маленький" },
-//     { type: "Температура", value: "Средняя" },
-//   ]
-// );
+let rules = ref([]);
+
 //Множества определения
-// let definitionSets = ref([]);
-// let definitionSets = ref([
-//   { type: "Давление", set: [800, 830, 860, 900] },
-//   { type: "Объем", set: [500, 520, 540, 560] },
-//   { type: "Температура", set: [300, 350, 400] },
-// ]);
-// definitionSets.value.push(
-//   { type: "Давление", set: [800, 830, 860, 900] },
-//   { type: "Объем", set: [500, 520, 540, 560] },
-//   { type: "Температура", set: [300, 350, 400] }
-// );
+let definitionSets = ref([]);
+
 //начальные нечёткие множества
-// let arrayWithA = ref([]);
+let arrayWithA = ref([]);
 
-// let arrayWithA = ref([
-//   {
-//     Давление: {
-//       Большое: [0.4, 0.6, 0.8, 1],
-//       Низкое: [1, 0.9, 0.6, 0.4],
-//     },
-//   },
-//   {
-//     Объем: {
-//       Большой: [0, 0.3, 0.7, 1],
-//       Маленький: [1, 0.8, 0.6, 0.2],
-//     },
-//   },
-//   {
-//     Температура: {
-//       Высокая: [0.1, 0.5, 1],
-//       Средняя: [0.5, 1, 0.5],
-//     },
-//   },
-// ]);
-// arrayWithA.value.push(
-//   {
-//     Давление: {
-//       Большое: [0.4, 0.6, 0.8, 1],
-//       Низкое: [1, 0.9, 0.6, 0.4],
-//     },
-//   },
-//   {
-//     Объем: {
-//       Большой: [0, 0.3, 0.7, 1],
-//       Маленький: [1, 0.8, 0.6, 0.2],
-//     },
-//   },
-//   {
-//     Температура: {
-//       Высокая: [0.1, 0.5, 1],
-//       Средняя: [0.5, 1, 0.5],
-//     },
-//   }
-// );
 // Пусть ...
-
 let arrayWithA2 = ref([]);
-
-// let arrayWithA2 = ref([
-//   {
-//     Давление: {
-//       Среднее: [0.5, 0.8, 0.9, 0.5],
-//     },
-//   },
-//   {
-//     Объем: {
-//       Достаточно_маленький: [0.9, 0.5, 0.3, 0],
-//     },
-//   },
-// ]);
-// arrayWithA2.value.push(
-//   {
-//     Давление: {
-//       Среднее: [0.5, 0.8, 0.9, 0.5],
-//     },
-//   },
-//   {
-//     Объем: {
-//       Достаточно_маленький: [0.9, 0.5, 0.3, 0],
-//     },
-//   }
-// );
 
 //Вычисление уровней истинности предпосылок правил
 // let levels = fuzzyInferenceSystemsWithMultipleInputVariables(
@@ -494,49 +390,53 @@ function handleClick() {
   // arrayWithA2 = toRaw(arrayWithA2);
 
   // rules.shift();
+  console.log("Работает функция handleClick");
 
   if (arrayWithA2.value.length > 1) {
+    console.log("if в handleClick");
+
     fuzzyInferenceSystemsWithMultipleInputVariables(
       rules,
       arrayWithA,
       arrayWithA2
     );
   } else {
+    console.log("else в handleClick");
     oneOutputVariableWithInitialCalculationOfIndividualOutputs();
   }
 }
 
-let rules = ref([
-  [
-    { type: "Давление", value: "Большое" },
-    { type: "Температура", value: "Средняя" },
-  ],
-  [
-    { type: "Давление", value: "Низкое" },
-    { type: "Температура", value: "Низкая" },
-  ],
-]);
+// let rules = ref([
+//   [
+//     { type: "Давление", value: "Большое" },
+//     { type: "Температура", value: "Средняя" },
+//   ],
+//   [
+//     { type: "Давление", value: "Низкое" },
+//     { type: "Температура", value: "Низкая" },
+//   ],
+// ]);
 
-let definitionSets = ref([
-  { type: "Давление", set: [800, 830, 860, 900] },
-  { type: "Температура", set: [300, 350, 400] },
-]);
+// let definitionSets = ref([
+//   { type: "Давление", set: [800, 830, 860, 900] },
+//   { type: "Температура", set: [300, 350, 400] },
+// ]);
 
-let arrayWithA = ref([
-  {
-    Давление: {
-      Большое: [0.4, 0.6, 0.8, 1],
-      Низкое: [1, 0.9, 0.6, 0.4],
-    },
-  },
+// let arrayWithA = ref([
+//   {
+//     Давление: {
+//       Большое: [0.4, 0.6, 0.8, 1],
+//       Низкое: [1, 0.9, 0.6, 0.4],
+//     },
+//   },
 
-  {
-    Температура: {
-      Средняя: [0.5, 1, 0.5],
-      Низкая: [1, 0.4, 0.1],
-    },
-  },
-]);
+//   {
+//     Температура: {
+//       Средняя: [0.5, 1, 0.5],
+//       Низкая: [1, 0.4, 0.1],
+//     },
+//   },
+// ]);
 
 // console.log(rules.value);
 // console.log(definitionSets.value);
@@ -574,76 +474,109 @@ let arrayWithA = ref([
 // console.log(B);
 
 // oneOutputVariableWithInitialCalculationOfIndividualOutputs();
-console.log(rules.value);
-console.log(definitionSets.value);
-console.log(arrayWithA.value);
+// console.log(rules.value);
+// console.log(definitionSets.value);
+// console.log(arrayWithA.value);
 
 let arrayWithR = [];
-rules.value.forEach((ruleSet) => {
-  let arrayForfuzzyMamdaniImplication = [];
-  ruleSet.forEach((rule) => {
-    // Ищем нужный массив по типу и значению
-    const targetArray = arrayWithA.value.find((item) => item[rule.type]);
-    if (targetArray && targetArray[rule.type]) {
-      // console.log(targetArray[rule.type][rule.value]);
-      arrayForfuzzyMamdaniImplication.push(targetArray[rule.type][rule.value]);
-    } else {
-      console.log(null); // Если не найдено, выводим null
-    }
-  });
-  // console.log(arrayForfuzzyMamdaniImplication);
-  arrayWithR.push(
-    fuzzyMamdaniImplication(
-      arrayForfuzzyMamdaniImplication[0],
-      arrayForfuzzyMamdaniImplication[1]
-    )
-  );
-});
+// rules.value.forEach((ruleSet) => {
+//   let arrayForfuzzyMamdaniImplication = [];
+//   ruleSet.forEach((rule) => {
+//     // Ищем нужный массив по типу и значению
+//     const targetArray = arrayWithA.value.find((item) => item[rule.type]);
+//     if (targetArray && targetArray[rule.type]) {
+//       // console.log(targetArray[rule.type][rule.value]);
+//       arrayForfuzzyMamdaniImplication.push(targetArray[rule.type][rule.value]);
+//     } else {
+//       console.log(null); // Если не найдено, выводим null
+//     }
+//   });
+//   // console.log(arrayForfuzzyMamdaniImplication);
+//   arrayWithR.push(
+//     fuzzyMamdaniImplication(
+//       arrayForfuzzyMamdaniImplication[0],
+//       arrayForfuzzyMamdaniImplication[1]
+//     )
+//   );
+// });
 
 // let arrayWithA2 = ref([]);
-arrayWithA2.value.push([0.5, 0.8, 0.9, 0.5]);
-let arrayWitnB = [];
-for (let i = 0; i < arrayWithR.length; i++) {
-  arrayWitnB.push(maxMinComposition(arrayWithR[i], arrayWithA2.value[0]));
+// arrayWithA2.value.push([0.5, 0.8, 0.9, 0.5]);
+// let arrayWitnB = [];
+// for (let i = 0; i < arrayWithR.length; i++) {
+//   arrayWitnB.push(maxMinComposition(arrayWithR[i], arrayWithA2.value[0]));
+// }
+// let B = aggB(arrayWitnB);
+// console.log(B);
+
+function findArrayInObject(obj) {
+  // Проверяем, является ли текущий объект массивом
+  if (Array.isArray(obj)) {
+    return obj;
+  }
+
+  // Если объект не массив, рекурсивно проходим по всем его свойствам
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const result = findArrayInObject(obj[key]);
+      if (result) {
+        return result;
+      }
+    }
+  }
+
+  // Если массив не найден, возвращаем null
+  return null;
 }
-let B = aggB(arrayWitnB);
-console.log(B);
+
 function oneOutputVariableWithInitialCalculationOfIndividualOutputs() {
-  // console.log(rules.value);
-  // console.log(definitionSets.value);
-  // console.log(arrayWithA.value);
-  // let arrayWithR = [];
-  // rules.value.forEach((ruleSet) => {
-  //   let arrayForfuzzyMamdaniImplication = [];
-  //   ruleSet.forEach((rule) => {
-  //     // Ищем нужный массив по типу и значению
-  //     const targetArray = arrayWithA.value.find((item) => item[rule.type]);
-  //     if (targetArray && targetArray[rule.type]) {
-  //       // console.log(targetArray[rule.type][rule.value]);
-  //       arrayForfuzzyMamdaniImplication.push(
-  //         targetArray[rule.type][rule.value]
-  //       );
-  //     } else {
-  //       console.log(null); // Если не найдено, выводим null
-  //     }
-  //   });
-  //   // console.log(arrayForfuzzyMamdaniImplication);
-  //   arrayWithR.push(
-  //     fuzzyMamdaniImplication(
-  //       arrayForfuzzyMamdaniImplication[0],
-  //       arrayForfuzzyMamdaniImplication[1]
-  //     )
-  //   );
-  // });
-  // // let arrayWithA2 = ref([]);
+  // rules.value.shift();
+  // let arrayWithA2 = ref([]);
   // arrayWithA2.value.push([0.5, 0.8, 0.9, 0.5]);
-  // let arrayWitnB = [];
-  // for (let i = 0; i < arrayWithR.length; i++) {
-  //   arrayWitnB.push(maxMinComposition(arrayWithR[i], arrayWithA2.value[0]));
-  // }
-  // let B = aggB(arrayWitnB);
-  // console.log(B);
+  console.log(rules.value);
+  console.log(definitionSets.value);
+  console.log(arrayWithA.value);
+  let arrayWithR = [];
+  rules.value.forEach((ruleSet) => {
+    let arrayForfuzzyMamdaniImplication = [];
+    ruleSet.forEach((rule) => {
+      // Ищем нужный массив по типу и значению
+      const targetArray = arrayWithA.value.find((item) => item[rule.type]);
+      if (targetArray && targetArray[rule.type]) {
+        // console.log(targetArray[rule.type][rule.value]);
+        arrayForfuzzyMamdaniImplication.push(
+          targetArray[rule.type][rule.value]
+        );
+      } else {
+        console.log(null); // Если не найдено, выводим null
+      }
+    });
+    // console.log(arrayForfuzzyMamdaniImplication);
+    arrayWithR.push(
+      fuzzyMamdaniImplication(
+        arrayForfuzzyMamdaniImplication[0],
+        arrayForfuzzyMamdaniImplication[1]
+      )
+    );
+  });
+  // let arrayWithA2 = ref([]);
+  // arrayWithA2.value.push([0.5, 0.8, 0.9, 0.5]);
+  let arrayWitnB = [];
+  arrayWithA2.value[0] = findArrayInObject(arrayWithA2.value[0]);
+  for (let i = 0; i < arrayWithR.length; i++) {
+    arrayWitnB.push(maxMinComposition(arrayWithR[i], arrayWithA2.value[0]));
+  }
+  let B = aggB(arrayWitnB);
+  console.log(B);
 }
+
+watch(
+  rules,
+  (newValue, oldValue) => {
+    console.log("Массив изменился:", newValue, oldValue);
+  },
+  { deep: true }
+);
 </script>
 
 <template>
