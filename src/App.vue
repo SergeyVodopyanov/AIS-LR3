@@ -2,8 +2,10 @@
 import { ref, toRaw, watch } from "vue";
 function fuzzyMamdaniImplication(A, B) {
   // нечёткая импликация Мамдани, получаем матрицу R
-  // console.log(A);
-  // console.log(B);
+  console.log("A");
+  console.log(A);
+  console.log("B");
+  console.log(B);
 
   let R = Array.from({ length: A.length }, () => Array(B.length).fill(null));
   for (let i = 0; i < A.length; i++) {
@@ -11,6 +13,26 @@ function fuzzyMamdaniImplication(A, B) {
       R[i][j] = Math.min(A[i], B[j]);
     }
   }
+  console.log("R");
+  console.log(R);
+  return R;
+}
+
+function fuzzyLarsenImplication(A, B) {
+  // нечёткая импликация Ларсена, получаем матрицу R
+  console.log("A");
+  console.log(A);
+  console.log("B");
+  console.log(B);
+
+  let R = Array.from({ length: A.length }, () => Array(B.length).fill(null));
+  for (let i = 0; i < A.length; i++) {
+    for (let j = 0; j < B.length; j++) {
+      R[i][j] = A[i] * B[j];
+    }
+  }
+  console.log("R");
+  console.log(R);
   return R;
 }
 
@@ -502,12 +524,22 @@ function oneOutputVariableWithInitialCalculationOfIndividualOutputs() {
       }
     });
     // console.log(arrayForfuzzyMamdaniImplication);
-    arrayWithR.push(
-      fuzzyMamdaniImplication(
-        arrayForfuzzyMamdaniImplication[0],
-        arrayForfuzzyMamdaniImplication[1]
-      )
-    );
+    if (methodOfImplication.value == "Мамдани") {
+      arrayWithR.push(
+        fuzzyMamdaniImplication(
+          arrayForfuzzyMamdaniImplication[0],
+          arrayForfuzzyMamdaniImplication[1]
+        )
+      );
+    }
+    if (methodOfImplication.value == "Ларсен") {
+      arrayWithR.push(
+        fuzzyLarsenImplication(
+          arrayForfuzzyMamdaniImplication[0],
+          arrayForfuzzyMamdaniImplication[1]
+        )
+      );
+    }
   });
   console.log("Вычисление нечётких соответствий");
   console.log(arrayWithR);
@@ -545,12 +577,24 @@ function oneOutputVariableWithInitialAggregationOfRules() {
       }
     });
     // console.log(arrayForfuzzyMamdaniImplication);
-    arrayWithR.push(
-      fuzzyMamdaniImplication(
-        arrayForfuzzyMamdaniImplication[0],
-        arrayForfuzzyMamdaniImplication[1]
-      )
-    );
+    if (methodOfImplication.value == "Мамдани") {
+      console.log("Импликация Мамдани");
+      arrayWithR.push(
+        fuzzyMamdaniImplication(
+          arrayForfuzzyMamdaniImplication[0],
+          arrayForfuzzyMamdaniImplication[1]
+        )
+      );
+    }
+    if (methodOfImplication.value == "Ларсен") {
+      console.log("Импликация Ларсена");
+      arrayWithR.push(
+        fuzzyLarsenImplication(
+          arrayForfuzzyMamdaniImplication[0],
+          arrayForfuzzyMamdaniImplication[1]
+        )
+      );
+    }
   });
   console.log("Вычисление нечётких соответствий");
   console.log(arrayWithR);
@@ -573,6 +617,7 @@ function oneOutputVariableWithInitialAggregationOfRules() {
 // );
 
 let selectedRule = ref("Правило 1");
+let methodOfImplication = ref("Мамдани");
 </script>
 
 <template>
@@ -595,6 +640,21 @@ let selectedRule = ref("Правило 1");
         <label>
           <input type="radio" v-model="selectedRule" value="Правило 2" />
           Композиционное правило с первоначальной агрегацией правил
+        </label>
+      </div>
+    </div>
+    <div>
+      <h1>Выберите метод импликации:</h1>
+      <div>
+        <label>
+          <input type="radio" v-model="methodOfImplication" value="Мамдани" />
+          Импликация Мамдани
+        </label>
+      </div>
+      <div>
+        <label>
+          <input type="radio" v-model="methodOfImplication" value="Ларсен" />
+          Импликация Ларсена
         </label>
       </div>
     </div>
